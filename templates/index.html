@@ -16,17 +16,25 @@
                         <th>Source Domain</th>
                         <th>Destination Domain</th>
                         <th>Packet Size (KB)</th>
+                        <th>Domen</th>
                     </tr>`;
-                for (var i = 0; i < packets.length; i++) {
+
+                // Reverse the order and take the last 20 records
+                packets.reverse();
+                var displayedPackets = packets.slice(0, 20);
+
+                for (var i = 0; i < displayedPackets.length; i++) {
                     var row = table.insertRow();
                     var cell1 = row.insertCell(0);
                     var cell2 = row.insertCell(1);
                     var cell3 = row.insertCell(2);
                     var cell4 = row.insertCell(3);
-                    cell1.innerHTML = packets[i].timestamp;
-                    cell2.innerHTML = packets[i].src;
-                    cell3.innerHTML = packets[i].dst;
-                    cell4.innerHTML = packets[i].size;
+                    var cell5 = row.insertCell(4);
+                    cell1.innerHTML = displayedPackets[i].timestamp;
+                    cell2.innerHTML = displayedPackets[i].src;
+                    cell3.innerHTML = displayedPackets[i].dst;
+                    cell4.innerHTML = displayedPackets[i].size;
+                    cell5.innerHTML = displayedPackets[i].domen;
                 }
             });
         });
@@ -40,13 +48,15 @@
         <th>Source Domain</th>
         <th>Destination Domain</th>
         <th>Packet Size (KB)</th>
+        <th>Domen</th>
     </tr>
-    {% for packet in packets %}
+    {% for packet in packets[-20:] %}
         <tr>
             <td>{{ packet.timestamp }}</td>
             <td>{{ packet.src }}</td>
             <td>{{ packet.dst }}</td>
             <td>{{ packet.size }} KB</td>
+            <td>{{ packet.domen }}</td>
         </tr>
     {% endfor %}
 </table>
