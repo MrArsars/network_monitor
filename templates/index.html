@@ -19,9 +19,8 @@
                         <th>Domen</th>
                     </tr>`;
 
-                // Reverse the order and take the last 20 records
                 packets.reverse();
-                var displayedPackets = packets.slice(0, 20);
+                var displayedPackets = packets.slice(0, 30);
 
                 for (var i = 0; i < displayedPackets.length; i++) {
                     var row = table.insertRow();

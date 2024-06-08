@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 from scapy.all import sniff
+import scapy.all as scapy
 from scapy.layers.dns import DNS
 from scapy.layers.inet import IP
 import threading
@@ -14,14 +15,16 @@ packets_info = {}
 
 
 class NetworkMonitor:
+
     def packet_handler(self, packet):
         if IP in packet:
             src_ip = packet[IP].src
             dst_ip = packet[IP].dst
+
             dst_domen = extract_domain_from_dns(packet)
 
             # Filter out packets related to local machine to avoid recursive triggers
-            if src_ip == "127.0.0.1" or dst_ip == "127.0.0.1":
+            if src_ip == "127.0.0.1" or dst_ip == "127.0.0.1" or src_ip == "172.17.0.3" or dst_ip == "172.17.0.3":
                 return
 
             packet_size = len(packet) / 1024  # Convert to KB
@@ -36,9 +39,8 @@ class NetworkMonitor:
                 packets_info[key] = {'timestamp': timestamp, 'src': src_ip, 'dst': dst_ip,
                                      'size': round(packet_size, 2), 'domen': dst_domen}
 
-
     def start_sniffing(self):
-        sniff(prn=self.packet_handler, store=False, filter="ip")
+        scapy.sniff(prn=self.packet_handler, store=False, filter="ip")
 
     def start(self):
         thread = threading.Thread(target=self.start_sniffing)
@@ -76,10 +78,10 @@ def send_updates():
     while True:
         packets_list = list(packets_info.values())
         socketio.emit('packet_update', packets_list, namespace='/test')
-        socketio.sleep(1) 
+        socketio.sleep(1)
 
 
 socketio.start_background_task(send_updates)
 
 if __name__ == "__main__":
-    socketio.run(app, host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=5001, allow_unsafe_werkzeug=True)
